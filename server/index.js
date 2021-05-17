@@ -22,7 +22,7 @@ const connect = mongoose
     useFindAndModify: false,
   })
   .then(() => console.log('MongoDB Connected...'))
-  .catch((err) => console.log(err))
+  .catch(err => console.log(err))
 
 app.use(cors())
 
@@ -35,6 +35,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.use('/api/users', require('./routes/users'))
+app.use('/api/video', require('./routes/video'))
 
 //use this to show the image you have in node js server to client (react js)
 //https://stackoverflow.com/questions/48914987/send-image-path-from-node-js-express-server-to-react-client

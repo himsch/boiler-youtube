@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Typography, Button, Form, message, Input, Icon } from 'antd'
 import Dropzone from 'react-dropzone'
+import Axios from 'axios'
 
 const { TextArea } = Input
 const { Title } = Typography
@@ -24,17 +25,43 @@ function VideoUploadPage() {
   const [Category, setCategory] = useState('Flim & Animation')
 
   // onChange 함수
-  const onTitleChange = (e) => {
+  const onTitleChange = e => {
     setVideoTitle(e.currentTarget.value)
   }
-  const onDescriptionChange = (e) => {
+  const onDescriptionChange = e => {
     setDescription(e.currentTarget.value)
   }
-  const onPrivateChange = (e) => {
+  const onPrivateChange = e => {
     setPrivate(e.currentTarget.value)
   }
-  const onCategoryChange = (e) => {
+  const onCategoryChange = e => {
     setCategory(e.currentTarget.value)
+  }
+
+  const onDrop = files => {
+    let formData = new FormData()
+    const config = {
+      header: { 'content-type': 'multipart/form-data' },
+    }
+    formData.append('file', files[0])
+    Axios.post('/api/video/uploadfiles', formData, config).then(response => {
+      if (response.data.success) {
+        console.log(response.data)
+        let variable = {
+          url: response.data.url,
+          filename: response.data.filename,
+        }
+        Axios.post('/api/video/thumbnail', variable).then(response => {
+          if (response.data.success) {
+            console.log(response.data)
+          } else {
+            alert('썸네일 생성에 실패했습니다.')
+          }
+        })
+      } else {
+        alert('비디오 업로드를 실패했습니다.')
+      }
+    })
   }
 
   return (
@@ -45,7 +72,7 @@ function VideoUploadPage() {
       <Form onSubmit>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           {/* Drop Zone */}
-          <Dropzone onDrop multiple maxSize>
+          <Dropzone onDrop={onDrop} multiple={false} maxSize={100000000}>
             {({ getRootProps, getInputProps }) => (
               <div
                 style={{
